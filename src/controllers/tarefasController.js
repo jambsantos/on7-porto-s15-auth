@@ -1,4 +1,3 @@
-//apontamento do model que criamos para as Tarefas
 const tarefas = require('../models/tarefas');
 const SECRET = process.env.SECRET;
 const jwt = require('jsonwebtoken');
@@ -27,6 +26,19 @@ const getAll = (req, res) => {
 };
 
 const getById = (req, res) => {
+  const authHeader = req.get('authorization');
+
+  if (!authHeader) {
+    return res.status(401).send('Header vazio - erro');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, SECRET, function(erro) {
+    if (erro) {
+      return res.status(403).send('ERRO');
+    }
+
   const id = req.params.id;
   tarefas.find({ id }, function(err, tarefas){
     if(err) {
@@ -35,7 +47,8 @@ const getById = (req, res) => {
 
     res.status(200).send(tarefas);
   })
-};
+});
+}
 
 const postTarefa = (req, res) => {
   console.log(req.body)
