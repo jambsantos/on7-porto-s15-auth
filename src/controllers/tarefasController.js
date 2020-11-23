@@ -140,15 +140,23 @@ const deleteTarefaConcluida = (req, res) => {
 }
 
 const putTarefa = (req, res) => {
+  const authHeader = req.get('authorization');
+
+  if (!authHeader) {
+    return res.status(401).send('Header vazio - erro');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, SECRET, function(erro) {
+    if (erro) {
+      return res.status(403).send('ERRO');
+    }
+
   const id = req.params.id;
 
   tarefas.find({ id }, function(err, tarefa){
     if(tarefa.length> 0){
-      //faz o update apenas para quem respeitar o id passado no parametro
-      // set são os valores que serão atualizados
-      //UpdateMany atualiza vários registros de uma unica vez
-      //UpdateOne atualiza um único registro por vez
-
       tarefas.updateMany({ id }, { $set : req.body }, function (err) {
         if (err) {
           res.status(500).send({ message: err.message })
@@ -159,7 +167,7 @@ const putTarefa = (req, res) => {
       res.status(200).send({ message: "Não há registros para serem atualizados com esse id"})
     }
   })
-
+})
 }
 
 module.exports = {
