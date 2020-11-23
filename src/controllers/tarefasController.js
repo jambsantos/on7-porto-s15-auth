@@ -114,7 +114,18 @@ const deleteTarefa = (req, res) => {
 };
 
 const deleteTarefaConcluida = (req, res) => {
-  //Deleta quando concluido = true
+  const authHeader = req.get('authorization');
+
+  if (!authHeader) {
+    return res.status(401).send('Header vazio - erro');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, SECRET, function(erro) {
+    if (erro) {
+      return res.status(403).send('ERRO');
+    }
   try {
     tarefas.deleteMany({ concluido: true }, function (err) {
         if (!err) {
@@ -125,6 +136,7 @@ const deleteTarefaConcluida = (req, res) => {
     console.log(err)
     return res.status(424).send({ message: err.message })
   }
+})
 }
 
 const putTarefa = (req, res) => {
