@@ -76,10 +76,19 @@ const postTarefa = (req, res) => {
 }
 
 const deleteTarefa = (req, res) => {
-  const id = req.params.id;
+  const authHeader = req.get('authorization');
 
-  //deleteMany remove mais de um registro
-  //deleteOne remove apenas um registro
+  if (!authHeader) {
+    return res.status(401).send('Header vazio - erro');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, SECRET, function(erro) {
+    if (erro) {
+      return res.status(403).send('ERRO');
+    }
+  const id = req.params.id;
   tarefas.find({ id }, function(err, tarefa){
     if(tarefa.length > 0){
       tarefas.deleteMany({ id }, function(err){
@@ -98,9 +107,10 @@ const deleteTarefa = (req, res) => {
       res.status(200).send({
         message: 'Não há tafera para ser removida',
         status: "EMPTY"
-      })
-    }
-  })
+      });
+    };
+  });
+});
 };
 
 const deleteTarefaConcluida = (req, res) => {
