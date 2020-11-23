@@ -7,14 +7,14 @@ const getAll = (req, res) => {
   const authHeader = req.get('authorization');
 
   if (!authHeader) {
-    return res.status(401).send('Kd os header parça');
+    return res.status(401).send('Header vazio - erro');
   }
 
   const token = authHeader.split(' ')[1];
 
   jwt.verify(token, SECRET, function(erro) {
     if (erro) {
-      return res.status(403).send('Nope');
+      return res.status(403).send('ERRO');
     }
 
     tarefas.find(function(err, tarefas){
@@ -28,8 +28,6 @@ const getAll = (req, res) => {
 
 const getById = (req, res) => {
   const id = req.params.id;
-  //Find sempre retorna uma lista
-  //FindOne retorna um unico documento
   tarefas.find({ id }, function(err, tarefas){
     if(err) {
       res.status(500).send({ message: err.message })
