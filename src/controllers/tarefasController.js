@@ -51,18 +51,29 @@ const getById = (req, res) => {
 }
 
 const postTarefa = (req, res) => {
+  const authHeader = req.get('authorization');
+
+  if (!authHeader) {
+    return res.status(401).send('Header vazio - erro');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, SECRET, function(erro) {
+    if (erro) {
+      return res.status(403).send('ERRO');
+    }
+
   console.log(req.body)
-
   let tarefa = new tarefas(req.body)
-
   tarefa.save(function(err){
     if(err) {
       res.status(500).send({ message: err.message })
     }
     res.status(201).send(tarefa.toJSON())
   })
-
-};
+});
+}
 
 const deleteTarefa = (req, res) => {
   const id = req.params.id;
